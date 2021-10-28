@@ -1,3 +1,30 @@
+'''
+#############################################
+# 
+# Changelog
+# 
+
+## [v0.0.2] - 2021-28-10
+### Fixed 
+- The Add function was visible in materials nodes as well, it added empty node in material, added poll to customnodecategrory 
+ 
+### Changed
+- Simplified node names on catergory, stripped "control"
+- NodeGroup width was to narrow, added width
+
+### Added
+- Changelog to repo
+
+## [v0.0.1] - 2021-27-10
+### Added 
+- Initial release repo 
+
+# 
+#############################################
+'''
+
+
+
 import os
 import bpy
 from bpy.types import Operator
@@ -6,7 +33,7 @@ from bpy.types import Operator
 bl_info = {
     "name": "World Control",
     "author": "Rombout Versluijs, Lech Sokolowski (Chocofur)",
-    "version": (0, 0, 1),
+    "version": (0, 0, 2),
     "blender": (2, 80, 0),
     "location": "World > Add Node > World Control",
     "description": "Adds a shader setup which allows more control when using HDR/EXR lighting. Based on Lech Sokolowski (Chocofur) video BCON19.",
@@ -74,6 +101,7 @@ def addWorldControl(self, context,controlType):
 
     ground_hdri_node = nodes.new(type="ShaderNodeGroup")
     ground_hdri_node.node_tree = getGroundHdriNodeGroup(controlType)
+    ground_hdri_node.width = 185
     ground_hdri_node.location = [world_loc.x - 200, world_loc.y]
     # Shade Node Types
     # https://docs.blender.org/api/current/bpy.types.html
@@ -144,10 +172,25 @@ class ShaderNodeAdvanced(bpy.types.NodeCustomGroup):
 
 from nodeitems_utils import NodeItem, register_node_categories, unregister_node_categories
 from nodeitems_builtins import ShaderNodeCategory
+from nodeitems_utils import NodeCategory, NodeItem
 
-node_categories = [ShaderNodeCategory("WRL_NEW_CUSTOM","World Control",
-                                        items=[NodeItem("ShaderNodeBasic",label ='Basic Controls'),
-                                                NodeItem("ShaderNodeAdvanced",label ='Advanced Controls')])] 
+class ShaderWorldNodeCategory(NodeCategory):
+    @classmethod
+    def poll(cls, context):
+        # From Extra Material List addon > MeshLogic
+        sdata = context.space_data
+        return sdata.shader_type == 'WORLD'
+        # world = context.scene.world
+        # nodes = world.node_tree.nodes
+        # print(context.nodes)
+        # return nodes.nodes["World Output"]
+        # print(context.space_data.tree_type)
+        # return context.space_data.tree_type == 'ShaderNodeTree'
+
+
+node_categories = [ShaderWorldNodeCategory("WRL_NEW_CUSTOM","World Control",
+                                        items=[NodeItem("ShaderNodeBasic",label ='Basic'),
+                                                NodeItem("ShaderNodeAdvanced",label ='Advanced')])] 
 
 
 classes = [
