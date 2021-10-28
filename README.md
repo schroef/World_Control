@@ -3,6 +3,14 @@ Adds a shader setup which allows more control when using HDR/EXR lighting. Based
 
 !['Example NodeGroup'](https://raw.githubusercontent.com/wiki/schroef/World_Control/images/world_control_v002.png?v28102021)
 
+
+## Workflow
+
+Take a look at this video and see how this menu works
+
+[!['Workflow using World Control'](https://raw.githubusercontent.com/wiki/schroef/World_Control/images/howto_lech_youtube.png?v28102021)](https://youtu.be/FF21foXMv4E?t=838)
+
+
 ### System Requirements
 
 | **OS** | **Blender** |
