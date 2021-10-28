@@ -1,7 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-## [v0.0.2] - 2021-28-10
+## [0.0.2] - 2021-28-10
 ### Fixed 
 - The Add function was visible in materials nodes as well, it added empty node in material, added poll to customnodecategrory 
  
@@ -9,7 +9,7 @@ All notable changes to this project will be documented in this file.
 - Simplified node names on catergory, stripped "control"
 - NodeGroup with was to narrow, added width
 
-## [v0.0.1] - 2021-27-10
+## [0.0.1] - 2021-27-10
 ### Added 
 - Initial release repo 
 
