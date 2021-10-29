@@ -4,18 +4,23 @@
 # Changelog
 # 
 
-## [v0.0.2] - 2021-28-10
+## [0.0.3] - 2021-29-10
+### Added
+# - Reset operator > set all inputs to default
+# - Panel view easy access from 3d viewport
+
+## [0.0.2] - 2021-28-10
 ### Fixed 
-- The Add function was visible in materials nodes as well, it added empty node in material, added poll to customnodecategrory 
+- The Add function was visible in materials nodes as well, it added empty node in material, added poll to custom nodecategrory 
  
 ### Changed
-- Simplified node names on catergory, stripped "control"
+- Simplified node names on category, stripped "control"
 - NodeGroup width was to narrow, added width
 
 ### Added
 - Changelog to repo
 
-## [v0.0.1] - 2021-27-10
+## [0.0.1] - 2021-27-10
 ### Added 
 - Initial release repo 
 
@@ -28,12 +33,13 @@
 import os
 import bpy
 from bpy.types import Operator
+from . import wc_3dv_panel
 # from bpy_extras.object_utils import AddObjectHelper
 
 bl_info = {
     "name": "World Control",
     "author": "Rombout Versluijs, Lech Sokolowski (Chocofur)",
-    "version": (0, 0, 2),
+    "version": (0, 0, 3),
     "blender": (2, 80, 0),
     "location": "World > Add Node > World Control",
     "description": "Adds a shader setup which allows more control when using HDR/EXR lighting. Based on Lech Sokolowski (Chocofur) video BCON19.",
@@ -100,6 +106,8 @@ def addWorldControl(self, context,controlType):
     world_loc = world_output.location
 
     ground_hdri_node = nodes.new(type="ShaderNodeGroup")
+    ground_hdri_node.name = "WorldControl"+controlType
+    ground_hdri_node.label = "WorldControl"+controlType
     ground_hdri_node.node_tree = getGroundHdriNodeGroup(controlType)
     ground_hdri_node.width = 185
     ground_hdri_node.location = [world_loc.x - 200, world_loc.y]
@@ -204,13 +212,15 @@ classes = [
 def register():
     for cls in classes:
         bpy.utils.register_class(cls)
+   
     register_node_categories("WCN_CUSTOM_NODES", node_categories)
-
+    wc_3dv_panel.register()
 
 def unregister():
     for cls in classes:
         bpy.utils.unregister_class(cls)
     unregister_node_categories("WCN_CUSTOM_NODES")
+    wc_3dv_panel.unregister()
 
 
 if __name__ == "__main__":
