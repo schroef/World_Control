@@ -1,7 +1,7 @@
 # World Control
 Adds a shader setup which allows more control when using HDR/EXR lighting. Based on Lech Sokolowski (Chocofur) video BCON19.
 
-!['Example NodeGroup'](https://raw.githubusercontent.com/wiki/schroef/World_Control/images/world_control_v003.png?v29102021)
+!['Example NodeGroup'](https://raw.githubusercontent.com/wiki/schroef/World_Control/images/world_control_v004.png?v30102021)
 
 
 ## Workflow

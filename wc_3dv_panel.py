@@ -14,16 +14,36 @@ def find_basic(nt):
 def find_advanced(nt):
     return nt.nodes.find("WorldControlAdvanced")
     
+def check_world_check_mode(self, context):
+    # Dirty method to get around 'RestrictContext'
+    sceneLoaded = False
+    try:
+        if bpy.context.scene:
+            sceneLoaded = True
+    except:
+        pass
+
+    if sceneLoaded:
+        scn = context.scene
+        world = scn.world
+        nt = world.node_tree
+        if find_basic(nt) != -1:
+            scn.check_mode = "Basic"
+        if find_advanced(nt) != -1:
+            scn.check_mode = "Advanced"
+        else:
+            scn.check_mode = "World Control"
+
 def check_world_control_type(context):
     world = bpy.context.scene.world
     nt = world.node_tree
-#    print(find_basic(nt) != -1)
     if find_basic(nt) != -1:
         return "World Control Basic"
     if find_advanced(nt) != -1:
         return "World Control Advanced"
     else:
         return "World Control"
+
 
 def return_world_control_type():
     world = bpy.context.scene.world
@@ -41,12 +61,15 @@ class WorldControlPanel:
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
     bl_category = 'View'
+    bl_options = {'DEFAULT_CLOSED'}
 
 
 class WC_PT_main_panel(WorldControlPanel, Panel):          
-    bl_label = ""
+    bl_label = "World Control"
     #bl_context = "objectmode"
-    
+
+    # check_mode : StringProperty(name="ControlType",default = "Basic")
+
     @classmethod
     def poll(cls, context):
         world = bpy.context.scene.world
@@ -57,37 +80,46 @@ class WC_PT_main_panel(WorldControlPanel, Panel):
 #        print(basic or advanced != -1)
         return (basic != -1 or advanced != -1) and engine_compatibility(context)
     
-    def draw_header(self, context):
-        layout = self.layout
-        layout.label(text=str(check_world_control_type(context)))
+    # Header text looks different vs regular BL_name > check with devs
+    # def draw_header(self, context):
+    #     layout = self.layout
+    #     layout.label(text=str(check_world_control_type(context)))
+
         
     def draw(self, context):
-        scn = context.scene
         layout = self.layout
         layout.use_property_split = True
         layout.use_property_decorate = False
-                
-        col = layout.column()
         
-        world = bpy.context.scene.world
+        scn = context.scene
+        world = scn.world
         nodes = scn.world.node_tree.nodes
         nt = world.node_tree
         basic = find_basic(nt)
         advanced = find_advanced(nt)
-       
+
+        col = layout.column(align=False, heading="Mode")
+        col.use_property_decorate = False
+        row = col.row(align=True)
+        sub = row.row(align=True)
+
         if engine_compatibility and (basic != -1 or advanced != -1):
-            reset_bg = col.operator("wc.reset_settings", icon = 'LOOP_BACK')
-            reset_bg.reset_type = 'BG'         
-                                            
+            sub.prop(scn, "check_mode", emboss=False,icon='WORLD')
+            # sub.label(text=str(check_world_check_mode(context))) #icon='WORLD_DATA'
+            reset_bg = row.operator("wc.reset_settings", icon = 'LOOP_BACK', text='')
+            reset_bg.controlType = return_world_control_type()
+
+        col = layout.column()
         if (basic == -1 and advanced == -1):   
             col.label(text = 'No World Control in shader', icon = 'INFO') 
         if not engine_compatibility:
             col.label(text = 'Not compatible with this render engine', icon = 'INFO')
             col.prop(scn.render, 'engine')
-#            col.separator()
         else:
+            col.separator()
             col.prop(nodes['Mapping'].inputs[2], "default_value", text = 'Rotation')   
-            
+
+
 class WC_PT_light_settings(WorldControlPanel, Panel):
     bl_category = "View"
     # bl_context = ".objectmode"  # dot on purpose (access from topbar)
@@ -374,10 +406,11 @@ classes = (
     WC_OT_reset_settings
     )
     
+
 def register():
     from bpy.utils import register_class
     for cls in classes:
-        register_class(cls)        
+        register_class(cls)       
 
 def unregister():
     from bpy.utils import unregister_class

@@ -4,10 +4,15 @@
 # Changelog
 # 
 
+## [0.0.4] - 2021-30-10
+### Changed
+- Moved panel to View category
+- Panel header > changed dynamic header name. Font size issue, draw_header shows small font?!?
+
 ## [0.0.3] - 2021-29-10
 ### Added
-# - Reset operator > set all inputs to default
-# - Panel view easy access from 3d viewport
+- Reset operator > set all inputs to default
+- Panel view easy access from 3d viewport
 
 ## [0.0.2] - 2021-28-10
 ### Fixed 
@@ -33,13 +38,14 @@
 import os
 import bpy
 from bpy.types import Operator
+from bpy.props import StringProperty
 from . import wc_3dv_panel
 # from bpy_extras.object_utils import AddObjectHelper
 
 bl_info = {
     "name": "World Control",
     "author": "Rombout Versluijs, Lech Sokolowski (Chocofur)",
-    "version": (0, 0, 3),
+    "version": (0, 0, 4),
     "blender": (2, 80, 0),
     "location": "World > Add Node > World Control",
     "description": "Adds a shader setup which allows more control when using HDR/EXR lighting. Based on Lech Sokolowski (Chocofur) video BCON19.",
@@ -49,10 +55,10 @@ bl_info = {
 }
 
 
-# from bpy.utils import register_class, unregister_class
-blendFile = "World_Control_Worldnode.blend"
 
+blendFile = "worldcontrol.blend"
 
+# Source EasyHDRI
 class PrincipledWorldWrapper:
     """This is a wrapper similar in use to PrincipledBSDFWrapper (located in
     bpy_extras.node_shader_utils) but for use with worlds. This is required to
@@ -105,12 +111,14 @@ def addWorldControl(self, context,controlType):
     world_output = principled_world.node_out
     world_loc = world_output.location
 
+    # Add World Control node group
     ground_hdri_node = nodes.new(type="ShaderNodeGroup")
     ground_hdri_node.name = "WorldControl"+controlType
     ground_hdri_node.label = "WorldControl"+controlType
     ground_hdri_node.node_tree = getGroundHdriNodeGroup(controlType)
     ground_hdri_node.width = 185
     ground_hdri_node.location = [world_loc.x - 200, world_loc.y]
+
     # Shade Node Types
     # https://docs.blender.org/api/current/bpy.types.html
     texture_light_node = nodes.new(type="ShaderNodeTexEnvironment")
@@ -123,6 +131,7 @@ def addWorldControl(self, context,controlType):
     texture_coor = nodes.new(type="ShaderNodeTexCoord")
     texture_coor.location = [mapping_node.location.x - 200, world_loc.y]
 
+    # Setup node links
     links.new(texture_coor.outputs["Generated"], mapping_node.inputs["Vector"])
     links.new(mapping_node.outputs[0], texture_light_node.inputs[0])
     links.new(texture_light_node.outputs["Color"], ground_hdri_node.inputs["Light HDR"])
@@ -130,7 +139,7 @@ def addWorldControl(self, context,controlType):
         links.new(mapping_node.outputs[0], texture_bg_node.inputs[0])
         links.new(texture_bg_node.outputs["Color"], ground_hdri_node.inputs["Background HDR"])
     links.new(ground_hdri_node.outputs[0], world_output.inputs["Surface"])
-
+    
 
 class WRD_OT_AddWorldControlBasic(Operator):
     """Create a new World add World Control with basic settings"""
@@ -140,6 +149,7 @@ class WRD_OT_AddWorldControlBasic(Operator):
 
     def execute(self, context):
         addWorldControl(self,context, "Basic")
+        bpy.context.scene.check_mode = "Basic"
         self.report({'INFO'}, "Added Basic World Control")
         return {'FINISHED'}
 
@@ -152,6 +162,7 @@ class WRD_OT_AddWorldControlAdvanced(Operator):
 
     def execute(self, context):
         addWorldControl(self,context, "Advanced")
+        bpy.context.scene.check_mode = "Advanced"
         self.report({'INFO'}, "Added Advanced World Control")
         return {'FINISHED'}
 
@@ -165,6 +176,8 @@ class ShaderNodeBasic(bpy.types.NodeCustomGroup):
         world = bpy.context.scene.world
         nodes = world.node_tree.nodes
         nodes.remove(nodes["Basic World"])
+        bpy.context.scene.check_mode = "Simple"
+
 
 
 class ShaderNodeAdvanced(bpy.types.NodeCustomGroup):
@@ -176,6 +189,7 @@ class ShaderNodeAdvanced(bpy.types.NodeCustomGroup):
         world = bpy.context.scene.world
         nodes = world.node_tree.nodes
         nodes.remove(nodes["Advanced World"])
+        bpy.context.scene.check_mode = "Advanced"
 
 
 from nodeitems_utils import NodeItem, register_node_categories, unregister_node_categories
@@ -210,16 +224,20 @@ classes = [
 
 
 def register():
+
     for cls in classes:
         bpy.utils.register_class(cls)
    
     register_node_categories("WCN_CUSTOM_NODES", node_categories)
     wc_3dv_panel.register()
+    bpy.types.Scene.check_mode = StringProperty(name="Mode",default="Basic",description="What control type are we using")#,update=wc_3dv_panel.check_world_check_mode)
+
 
 def unregister():
     for cls in classes:
         bpy.utils.unregister_class(cls)
     unregister_node_categories("WCN_CUSTOM_NODES")
+    del bpy.types.Scene.check_mode
     wc_3dv_panel.unregister()
 
 
