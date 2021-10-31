@@ -14,7 +14,7 @@ def find_basic(nt):
 def find_advanced(nt):
     return nt.nodes.find("WorldControlAdvanced")
     
-def check_world_check_mode(self, context):
+def check_world_wc_check_mode(self, context):
     # Dirty method to get around 'RestrictContext'
     sceneLoaded = False
     try:
@@ -28,11 +28,11 @@ def check_world_check_mode(self, context):
         world = scn.world
         nt = world.node_tree
         if find_basic(nt) != -1:
-            scn.check_mode = "Basic"
+            scn.wc_check_mode = "Basic"
         if find_advanced(nt) != -1:
-            scn.check_mode = "Advanced"
+            scn.wc_check_mode = "Advanced"
         else:
-            scn.check_mode = "World Control"
+            scn.wc_check_mode = "World Control"
 
 def check_world_control_type(context):
     world = bpy.context.scene.world
@@ -68,17 +68,17 @@ class WC_PT_main_panel(WorldControlPanel, Panel):
     bl_label = "World Control"
     #bl_context = "objectmode"
 
-    # check_mode : StringProperty(name="ControlType",default = "Basic")
+    # wc_check_mode : StringProperty(name="ControlType",default = "Basic")
 
-    @classmethod
-    def poll(cls, context):
-        world = bpy.context.scene.world
-        nt = world.node_tree
-        basic = find_basic(nt)
-        advanced = find_advanced(nt)
-#        print(engine_compatibility(context))
-#        print(basic or advanced != -1)
-        return (basic != -1 or advanced != -1) and engine_compatibility(context)
+#     @classmethod
+#     def poll(cls, context):
+#         world = bpy.context.scene.world
+#         nt = world.node_tree
+#         basic = find_basic(nt)
+#         advanced = find_advanced(nt)
+# #        print(engine_compatibility(context))
+# #        print(basic or advanced != -1)
+#         return (basic != -1 or advanced != -1) and engine_compatibility(context)
     
     # Header text looks different vs regular BL_name > check with devs
     # def draw_header(self, context):
@@ -104,20 +104,23 @@ class WC_PT_main_panel(WorldControlPanel, Panel):
         sub = row.row(align=True)
 
         if engine_compatibility and (basic != -1 or advanced != -1):
-            sub.prop(scn, "check_mode", emboss=False,icon='WORLD')
-            # sub.label(text=str(check_world_check_mode(context))) #icon='WORLD_DATA'
+            sub.prop(scn,"wc_switch_control",expand = True)
+            # sub.prop(scn, "wc_check_mode", emboss=False,icon='WORLD')
+            # sub.label(text=str(check_world_wc_check_mode(context))) #icon='WORLD_DATA'
             reset_bg = row.operator("wc.reset_settings", icon = 'LOOP_BACK', text='')
             reset_bg.controlType = return_world_control_type()
 
+            col = layout.column()
+            col.separator()
+            col.prop(nodes['Mapping'].inputs[2], "default_value", text = 'Rotation')   
+        
         col = layout.column()
         if (basic == -1 and advanced == -1):   
             col.label(text = 'No World Control in shader', icon = 'INFO') 
         if not engine_compatibility:
             col.label(text = 'Not compatible with this render engine', icon = 'INFO')
             col.prop(scn.render, 'engine')
-        else:
-            col.separator()
-            col.prop(nodes['Mapping'].inputs[2], "default_value", text = 'Rotation')   
+        # else:
 
 
 class WC_PT_light_settings(WorldControlPanel, Panel):
@@ -125,7 +128,7 @@ class WC_PT_light_settings(WorldControlPanel, Panel):
     # bl_context = ".objectmode"  # dot on purpose (access from topbar)
     bl_label = "Light"
     bl_parent_id = "WC_PT_main_panel"
-    # bl_options = {'DEFAULT_CLOSED'}
+    bl_options = {'DEFAULT_CLOSED'}
     
     @classmethod
     def poll(cls, context):
