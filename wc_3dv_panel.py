@@ -102,7 +102,7 @@ class WC_PT_main_panel(WorldControlPanel, Panel):
         #     col = layout.column(align=True)
         #     col.label(text="Mode")
         # else:
-        col = layout.column(align=False), heading="Mode")
+        # col = layout.column(align=False), heading="Mode")
         col.use_property_decorate = False
         row = col.row(align=True)
         sub = row.row(align=True)
