@@ -98,7 +98,11 @@ class WC_PT_main_panel(WorldControlPanel, Panel):
         basic = find_basic(nt)
         advanced = find_advanced(nt)
 
-        col = layout.column(align=False, heading="Mode")
+        # if (bpy.app.version[1] < 92):
+        #     col = layout.column(align=True)
+        #     col.label(text="Mode")
+        # else:
+        col = layout.column(align=False), heading="Mode")
         col.use_property_decorate = False
         row = col.row(align=True)
         sub = row.row(align=True)
@@ -345,40 +349,40 @@ def reset_settings(controlType):
 
     if controlType == 'WorldControlAdvanced':
         nodes['WorldControlAdvanced'].inputs[1].default_value = 1.0 # Strength
-        nodes['WorldControlAdvanced'].inputs[2].default_value = 0.5 # Saturation
+        nodes['WorldControlAdvanced'].inputs[2].default_value = 1.0 # Saturation
         nodes['WorldControlAdvanced'].inputs[3].default_value = 5500 # Temperature
 
     # Background
     if controlType == 'WorldControlBasic':
         nodes['WorldControlBasic'].inputs[3].default_value = 1.0 # Strength
-        nodes['WorldControlBasic'].inputs[4].default_value = 0.5 # Saturation
+        nodes['WorldControlBasic'].inputs[4].default_value = 1.0 # Saturation
         
     if controlType == 'WorldControlAdvanced':
         nodes['WorldControlAdvanced'].inputs[7].default_value = 1.0 # Strength
-        nodes['WorldControlAdvanced'].inputs[8].default_value = 0.5 # Saturation
+        nodes['WorldControlAdvanced'].inputs[8].default_value = 1.0 # Saturation
 
     # Diffuse
     if controlType == 'WorldControlBasic':
         nodes['WorldControlBasic'].inputs[5].default_value = 1.0 # Strength
-        nodes['WorldControlBasic'].inputs[6].default_value = 0.5 # Saturation
+        nodes['WorldControlBasic'].inputs[6].default_value = 1.0 # Saturation
         
     if controlType == 'WorldControlAdvanced':
         nodes['WorldControlAdvanced'].inputs[4].default_value = 1.0 # Strength
-        nodes['WorldControlAdvanced'].inputs[5].default_value = 0.5 # Saturation
+        nodes['WorldControlAdvanced'].inputs[5].default_value = 1.0 # Saturation
 
     # Reflections
     if controlType == 'WorldControlAdvanced':
         nodes['WorldControlAdvanced'].inputs[9].default_value = 1.0 # Strength
-        nodes['WorldControlAdvanced'].inputs[10].default_value = 0.5 # Saturation
+        nodes['WorldControlAdvanced'].inputs[10].default_value = 1.0 # Saturation
     # Glossy
     if controlType == 'WorldControlBasic':
         nodes['WorldControlBasic'].inputs[7].default_value = 1.0 # Strength
-        nodes['WorldControlBasic'].inputs[8].default_value = 0.5 # Saturation
+        nodes['WorldControlBasic'].inputs[8].default_value = 1.0 # Saturation
 
     # Refraction
     if controlType == 'WorldControlAdvanced':
         nodes['WorldControlAdvanced'].inputs[11].default_value = 1.0 # Strength
-        nodes['WorldControlAdvanced'].inputs[12].default_value = 0.5 # Saturation
+        nodes['WorldControlAdvanced'].inputs[12].default_value = 1.0 # Saturation
 
 
 class WC_OT_reset_settings(Operator):

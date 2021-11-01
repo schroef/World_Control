@@ -4,6 +4,12 @@
 # Changelog
 # 
 
+
+## [0.0.6.1] - 2021-01-11
+### Fixed
+- Environment node uses "Environment" a very often, added this to check for old enviremont textures
+- Correct default Saturation values in Node Group
+
 ## [0.0.6] - 2021-31-10
 ### Added
 - auto-transfer old environment texture images > prevents from relinking them when switching modes
@@ -117,8 +123,8 @@ def get_env_image(context, org_world, img_type):
         :type image: string
     '''
 
-    scn = context.scene
-    images = bpy.data.images
+    # scn = context.scene
+    # images = bpy.data.images
     nodes = org_world.node_tree.nodes
     env_node = [item for item in nodes if item.type =='TEX_ENVIRONMENT']
 
@@ -126,7 +132,7 @@ def get_env_image(context, org_world, img_type):
         for img in env_node:
             # Light HDR
             if img_type == "Light":
-                if "Environment Texture" == img.name:
+                if "Environment Texture" == img.name or "Environment" == img.name:
                     old_img = img.image
             # Background HDR
             if img_type == "Background":
