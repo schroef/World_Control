@@ -4,6 +4,10 @@
 # Changelog
 # 
 
+## [0.0.6] - 2021-31-10
+### Added
+- auto-transfer old environment texture images > prevents from relinking them when switching modes
+
 ## [0.0.5] - 2021-30-10
 ### Changed
 - World Control is now created in its own world named "WorldControl"
@@ -54,7 +58,7 @@ from . import wc_3dv_panel
 bl_info = {
     "name": "World Control",
     "author": "Rombout Versluijs, Lech Sokolowski (Chocofur)",
-    "version": (0, 0, 5),
+    "version": (0, 0, 6),
     "blender": (2, 80, 0),
     "location": "World > Add Node > World Control",
     "description": "Adds a shader setup which allows more control when using HDR/EXR lighting. Based on Lech Sokolowski (Chocofur) video BCON19.",
@@ -103,6 +107,38 @@ class PrincipledWorldWrapper:
             elif self.node_out is None and n.type == "OUTPUT_WORLD":
                 self.node_out = n
 
+# Source: Thea Render > altered
+def get_env_image(context, org_world, img_type):
+    '''Search for environment nodes and get image tetures
+
+        :param context: context
+        :param org_world: original worl dwhere we look for environemnt texture image
+        :param img_type: look what environment image type we need; lgiht or background
+        :type image: string
+    '''
+
+    scn = context.scene
+    images = bpy.data.images
+    nodes = org_world.node_tree.nodes
+    env_node = [item for item in nodes if item.type =='TEX_ENVIRONMENT']
+
+    if env_node:
+        for img in env_node:
+            # Light HDR
+            if img_type == "Light":
+                if "Environment Texture" == img.name:
+                    old_img = img.image
+            # Background HDR
+            if img_type == "Background":
+                if "Environment Texture.001" == img.name:
+                    old_img = img.image
+                    print(img.name)
+                    print(old_img.name)
+                # We are using basic so add this to background when advanced
+                else:
+                    old_img = img.image
+
+        return old_img
 
 # Source: LilySurfaceScraper
 # https://github.com/eliemichel/LilySurfaceScraper/blob/b1e7066f94b965bab90696e0be75faa44eb08c3e/blender/LilySurfaceScraper/CyclesWorldData.py
@@ -143,6 +179,10 @@ def addWorldControl(self, context,controlType):
     world_output = principled_world.node_out
     world_loc = world_output.location
 
+    # store old environment images
+    old_light_img = get_env_image(context, org_world, img_type="Light")
+    old_background_img = get_env_image(context, org_world, img_type="Background")
+
     # Clear old node setup
     bpy.ops.world.delete_world_control()
 
@@ -158,9 +198,11 @@ def addWorldControl(self, context,controlType):
     # https://docs.blender.org/api/current/bpy.types.html
     texture_light_node = nodes.new(type="ShaderNodeTexEnvironment")
     texture_light_node.location = [ground_hdri_node.location.x - 300, world_loc.y]
+    texture_light_node.image = old_light_img
     if controlType == "Advanced":
         texture_bg_node = nodes.new(type="ShaderNodeTexEnvironment")
         texture_bg_node.location = [ground_hdri_node.location.x - 300, world_loc.y - 200]
+        texture_bg_node.image = old_background_img
     mapping_node = nodes.new(type="ShaderNodeMapping")
     mapping_node.location = [texture_light_node.location.x - 200, world_loc.y]
     texture_coor = nodes.new(type="ShaderNodeTexCoord")
