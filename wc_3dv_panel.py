@@ -98,11 +98,11 @@ class WC_PT_main_panel(WorldControlPanel, Panel):
         basic = find_basic(nt)
         advanced = find_advanced(nt)
 
-        # if (bpy.app.version[1] < 92):
-        #     col = layout.column(align=True)
-        #     col.label(text="Mode")
-        # else:
-        # col = layout.column(align=False), heading="Mode")
+        if (bpy.app.version[1] < 92):
+            col = layout.column(align=True)
+            col.label(text="Mode")
+        else:
+            col = layout.column(align=False, heading="Mode")
         col.use_property_decorate = False
         row = col.row(align=True)
         sub = row.row(align=True)

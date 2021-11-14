@@ -5,6 +5,10 @@
 # 
 
 
+## [0.0.6.2] - 2021-13-11
+### Fixed
+- Error in panel
+
 ## [0.0.6.1] - 2021-01-11
 ### Fixed
 - Environment node uses "Environment" a very often, added this to check for old enviremont textures
@@ -64,7 +68,7 @@ from . import wc_3dv_panel
 bl_info = {
     "name": "World Control",
     "author": "Rombout Versluijs, Lech Sokolowski (Chocofur)",
-    "version": (0, 0, 6),
+    "version": (0, 0, 6,2),
     "blender": (2, 80, 0),
     "location": "World > Add Node > World Control",
     "description": "Adds a shader setup which allows more control when using HDR/EXR lighting. Based on Lech Sokolowski (Chocofur) video BCON19.",
@@ -138,8 +142,8 @@ def get_env_image(context, org_world, img_type):
             if img_type == "Background":
                 if "Environment Texture.001" == img.name:
                     old_img = img.image
-                    print(img.name)
-                    print(old_img.name)
+                    # print(img.name)
+                    # print(old_img.name)
                 # We are using basic so add this to background when advanced
                 else:
                     old_img = img.image
